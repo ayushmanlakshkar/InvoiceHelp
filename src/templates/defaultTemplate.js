@@ -4,23 +4,21 @@ export const templates = [
     id: 'invoice',
     name: 'Tax Invoice',
     description: 'Standard tax invoice template',
+    supportLineItems: true,
     fields: [
       { id: 'billTo', label: 'Billed To', type: 'text', required: true, placeholder: '{{billTo}}' },
       { id: 'place', label: 'Place of Supply', type: 'text', required: true, placeholder: '{{place}}' },
       { id: 'invoiceNo', label: 'Invoice No', type: 'text', required: true, placeholder: '{{invoiceNo}}' },
       { id: 'invoiceDate', label: 'Date', type: 'date', required: true, placeholder: '{{invoiceDate}}' },
-      { id: 'goodsName', label: 'Description of Goods', type: 'text', required: true, placeholder: '{{goodsName}}' },
-      { id: 'hsnCode', label: 'HSN Code', type: 'text', required: true, placeholder: '{{hsnCode}}' },
-      { id: 'qty', label: 'Quantity', type: 'number', required: true, placeholder: '{{qty}}' },
-      { id: 'units', label: 'Units', type: 'text', required: true, placeholder: '{{units}}' },
-      { id: 'rate', label: 'Rate', type: 'number', required: true, placeholder: '{{rate}}' },
-      { id: 'amount', label: 'Amount', type: 'number', required: true, placeholder: '{{amount}}' },
-      { id: 'total', label: 'Total', type: 'number', required: true, placeholder: '{{total}}' },
-      { id: 'taxableValue', label: 'Taxable Value', type: 'number', required: true, placeholder: '{{taxableValue}}' },
-      { id: 'cgst', label: 'CGST Amount', type: 'number', required: true, placeholder: '{{cgst}}' },
-      { id: 'sgst', label: 'SGST Amount', type: 'number', required: true, placeholder: '{{sgst}}' },
-      { id: 'grandTotal', label: 'Grand Total', type: 'number', required: true, placeholder: '{{grandTotal}}' },
-      { id: 'amountWords', label: 'Amount in Words', type: 'text', required: true, placeholder: '{{amountWords}}' },
+      { id: 'lineItems', label: 'Line Items', type: 'line-items', required: true, placeholder: '{{lineItems}}' },
+      { id: 'total', label: 'Total', type: 'number', required: true, placeholder: '{{total}}', calculateFrom: ['lineItems'] },
+      { id: 'taxableValue', label: 'Taxable Value', type: 'number', required: true, placeholder: '{{taxableValue}}', calculateFrom: ['total'] },
+      { id: 'cgstRate', label: 'CGST Rate (%)', type: 'number', required: true, placeholder: '{{cgstRate}}' },
+      { id: 'cgst', label: 'CGST Amount', type: 'number', required: true, placeholder: '{{cgst}}', calculateFrom: ['taxableValue', 'cgstRate'] },
+      { id: 'sgstRate', label: 'SGST Rate (%)', type: 'number', required: true, placeholder: '{{sgstRate}}' },
+      { id: 'sgst', label: 'SGST Amount', type: 'number', required: true, placeholder: '{{sgst}}', calculateFrom: ['taxableValue', 'sgstRate'] },
+      { id: 'grandTotal', label: 'Grand Total', type: 'number', required: true, placeholder: '{{grandTotal}}', calculateFrom: ['taxableValue', 'cgst', 'sgst'] },
+      { id: 'amountWords', label: 'Amount in Words', type: 'text', required: true, placeholder: '{{amountWords}}', calculateFrom: ['grandTotal'] },
     ],
     html: `<!DOCTYPE html>
 <html lang="en">
@@ -38,7 +36,6 @@ export const templates = [
     .invoice-box {
       max-width: 800px;
       margin: auto;
-      border: 1px solid #000;
       border-radius: 0;
       background: #fff;
       padding: 32px 32px 24px 32px;
@@ -167,14 +164,7 @@ export const templates = [
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>{{goodsName}}</td>
-          <td>{{hsnCode}}</td>
-          <td>{{qty}}</td>
-          <td>{{units}}</td>
-          <td>{{rate}}</td>
-          <td>{{amount}}</td>
-        </tr>
+        {{lineItems}}
       </tbody>
     </table>
 
@@ -188,11 +178,11 @@ export const templates = [
         <td class="text-right">{{taxableValue}}</td>
       </tr>
       <tr>
-        <td colspan="5">ADD CGST (14%)</td>
+        <td colspan="5">ADD CGST ({{cgstRate}}%)</td>
         <td class="text-right">{{cgst}}</td>
       </tr>
       <tr>
-        <td colspan="5">ADD SGST (14%)</td>
+        <td colspan="5">ADD SGST ({{sgstRate}}%)</td>
         <td class="text-right">{{sgst}}</td>
       </tr>
       <tr>
@@ -230,7 +220,7 @@ export const templates = [
       { id: 'receiptNo', label: 'Receipt No', type: 'text', required: true, placeholder: '{{receiptNo}}' },
       { id: 'receiptDate', label: 'Date', type: 'date', required: true, placeholder: '{{receiptDate}}' },
       { id: 'amount', label: 'Amount', type: 'number', required: true, placeholder: '{{amount}}' },
-      { id: 'amountWords', label: 'Amount in Words', type: 'text', required: true, placeholder: '{{amountWords}}' },
+      { id: 'amountWords', label: 'Amount in Words', type: 'text', required: true, placeholder: '{{amountWords}}', calculateFrom: ['amount'] },
       { id: 'paymentMode', label: 'Payment Mode', type: 'text', required: true, placeholder: '{{paymentMode}}' },
     ],
     html: `<!DOCTYPE html>
