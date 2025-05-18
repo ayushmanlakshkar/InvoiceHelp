@@ -16,6 +16,13 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, LineItem } from '../utils/types';
 import { TemplateService } from '../services/TemplateService';
 import { TemplateField, Template } from '../utils/types';
+// To use voice recording, install react-native-audio-recorder-player:
+//   npm install react-native-audio-recorder-player
+//   npx pod-install
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import { PermissionsAndroid } from 'react-native';
+import { transcribeAudio } from '../services/SpeechToTextService';
+import { analyzeAndConvertText } from '../services/GeminiService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FormFilling'>;
 
@@ -25,6 +32,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   // Helper function to convert number to words
   const convertNumberToWords = (amount: number): string => {
@@ -159,7 +168,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
       item[field] = numValue;
       item.amount = item.quantity * numValue;
     } else {
-      item[field] = value as any;
+      (item as any)[field] = value;
     }
 
     updatedItems[index] = item;
@@ -253,6 +262,58 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
         templateId,
         formData: completeFormData,
       });
+    }
+  };
+
+  const audioRecorderPlayer = React.useRef(new AudioRecorderPlayer()).current;
+
+  const startRecording = async () => {
+    try {
+      if (Platform.OS === 'android') {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+          {
+            title: 'Microphone Permission',
+            message: 'App needs access to your microphone to record audio.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+          Alert.alert('Permission Denied', 'Cannot record without microphone permission.');
+          return;
+        }
+      }
+      setIsRecording(true);
+      await audioRecorderPlayer.startRecorder();
+    } catch (err) {
+      setIsRecording(false);
+      Alert.alert('Recording Error', 'Could not start recording.');
+    }
+  };
+
+  const stopRecording = async () => {
+    setIsRecording(false);
+    try {
+      const uri = await audioRecorderPlayer.stopRecorder();
+      audioRecorderPlayer.removeRecordBackListener();
+      if (uri) {
+        try {
+          setAiLoading(true);
+          const text = await transcribeAudio(uri);
+          const response = await analyzeAndConvertText(text);
+          setAiLoading(false);
+          console.log('Transcribed Text:', response);
+          // Optionally update formData and lineItems here
+        } catch (e) {
+          setAiLoading(false);
+          Alert.alert('Upload Error', 'Could not upload audio.');
+        }
+      }
+    } catch (err) {
+      setAiLoading(false);
+      Alert.alert('Recording Error', 'Could not stop recording.');
     }
   };
 
@@ -468,6 +529,27 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.buttonText}>Preview Document</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Voice recording button */}
+        <View style={{ marginBottom: 16 }}>
+          <TouchableOpacity
+            style={{ backgroundColor: isRecording ? '#e74c3c' : '#4caf50', padding: 12, borderRadius: 8, alignItems: 'center' }}
+            onPress={isRecording ? stopRecording : startRecording}
+          >
+            <Text style={{ color: 'white', fontWeight: '600' }}>
+              {isRecording ? 'Stop Recording' : 'Record Audio'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {aiLoading && (
+          <View style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
+            <View style={{ backgroundColor: 'white', padding: 24, borderRadius: 12, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#f4511e" />
+              <Text style={{ marginTop: 12, color: '#333', fontSize: 16 }}>Analyzing audio with AI...</Text>
+            </View>
+          </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );
