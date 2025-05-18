@@ -16,7 +16,7 @@ export interface GeminiFormData {
 
 // Replace with your Gemini API endpoint and key
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
-const GEMINI_API_KEY = 'AIzaSyCAhmnBUMREZNkp8GGe9DIgbSPw8A8-s5E'; // Store securely in production
+const GEMINI_API_KEY = ''; // Store securely in production
 
 /**
  * Calls Gemini API to analyze and convert transcribed text to form data.
