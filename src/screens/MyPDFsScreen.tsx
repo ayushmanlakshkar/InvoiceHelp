@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Alert, TextInput, Modal } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,17 +28,18 @@ const MyPDFsScreen: React.FC = () => {
   const handleShare = async (pdf: any) => {
     try {
       console.log(`Sharing PDF from MyPDFsScreen: ${pdf.filePath}`);
-      
+
       // Check if the file exists before attempting to share
       if (!pdf.filePath) {
         Alert.alert('Error', 'Invalid PDF file path.');
         return;
       }
-      
+
       await PDFService.sharePDF(pdf.filePath, pdf.fileName);
     } catch (e) {
       console.error('Error sharing PDF:', e);
-      Alert.alert('Error', `Could not share PDF: ${e.message || 'Unknown error'}`);
+      const errorMessage = (e && typeof e === 'object' && 'message' in e) ? (e as any).message : 'Unknown error';
+      Alert.alert('Error', `Could not share PDF: ${errorMessage}`);
     }
   };
 
@@ -106,7 +108,7 @@ const MyPDFsScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>My Generated PDFs</Text>
+      {/* <Text style={styles.header}>My Generated PDFs</Text> */}
       <FlatList
         data={pdfs}
         keyExtractor={(_, idx) => idx.toString()}

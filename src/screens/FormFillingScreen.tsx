@@ -12,17 +12,17 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList, LineItem } from '../utils/types';
 import { TemplateService } from '../services/TemplateService';
 import { TemplateField, Template } from '../utils/types';
 // To use voice recording, install react-native-audio-recorder-player:
 //   npm install react-native-audio-recorder-player
 //   npx pod-install
-import AudioRecorderPlayer from 'react-native-audio-recorder-player';
-import { PermissionsAndroid } from 'react-native';
-import { transcribeAudio } from '../services/SpeechToTextService';
-import { analyzeAndConvertText } from '../services/GeminiService';
+// import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+// import { PermissionsAndroid } from 'react-native';
+// import { transcribeAudio } from '../services/SpeechToTextService';
+// import { analyzeAndConvertText } from '../services/GeminiService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'FormFilling'>;
 
@@ -32,23 +32,23 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
+  // const [isRecording, setIsRecording] = useState(false);
+  // const [aiLoading, setAiLoading] = useState(false);
 
   // Helper function to convert number to words
   const convertNumberToWords = (amount: number): string => {
     try {
-      if (amount <= 0) {return 'Zero';}
+      if (amount <= 0) { return 'Zero'; }
 
       const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
       const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
       const numToWords = (num: number): string => {
-        if (num < 20) {return ones[num];}
-        if (num < 100) {return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? ' ' + ones[num % 10] : '');}
-        if (num < 1000) {return ones[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + numToWords(num % 100) : '');}
-        if (num < 100000) {return numToWords(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 !== 0 ? ' ' + numToWords(num % 1000) : '');}
-        if (num < 10000000) {return numToWords(Math.floor(num / 100000)) + ' Lakh' + (num % 100000 !== 0 ? ' ' + numToWords(num % 100000) : '');}
+        if (num < 20) { return ones[num]; }
+        if (num < 100) { return tens[Math.floor(num / 10)] + (num % 10 !== 0 ? ' ' + ones[num % 10] : ''); }
+        if (num < 1000) { return ones[Math.floor(num / 100)] + ' Hundred' + (num % 100 !== 0 ? ' and ' + numToWords(num % 100) : ''); }
+        if (num < 100000) { return numToWords(Math.floor(num / 1000)) + ' Thousand' + (num % 1000 !== 0 ? ' ' + numToWords(num % 1000) : ''); }
+        if (num < 10000000) { return numToWords(Math.floor(num / 100000)) + ' Lakh' + (num % 100000 !== 0 ? ' ' + numToWords(num % 100000) : ''); }
         return numToWords(Math.floor(num / 10000000)) + ' Crore' + (num % 10000000 !== 0 ? ' ' + numToWords(num % 10000000) : '');
       };
 
@@ -107,7 +107,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
 
   // Calculate values when line items or tax rates change
   useEffect(() => {
-    if (!template || template.id !== 'invoice') {return;}
+    if (!template || template.id !== 'invoice') { return; }
 
     // Calculate total from line items
     const total = lineItems.reduce((sum, item) => sum + item.amount, 0);
@@ -146,6 +146,34 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
     setFormData(prevData => ({
       ...prevData,
       [fieldId]: value,
+    }));
+  };
+
+  // Format date input with automatic dashes (DD-MM-YYYY)
+  const handleDateInputChange = (fieldId: string, text: string) => {
+    // Remove any non-numeric characters first
+    let numericValue = text.replace(/[^0-9]/g, '');
+
+    // Format with dashes
+    let formattedValue = '';
+    if (numericValue.length > 0) {
+      // Add first dash after day (DD-)
+      if (numericValue.length <= 2) {
+        formattedValue = numericValue;
+      }
+      // Add second dash after month (DD-MM-)
+      else if (numericValue.length <= 4) {
+        formattedValue = `${numericValue.substring(0, 2)}-${numericValue.substring(2)}`;
+      }
+      // Complete date format (DD-MM-YYYY)
+      else {
+        formattedValue = `${numericValue.substring(0, 2)}-${numericValue.substring(2, 4)}-${numericValue.substring(4, 8)}`;
+      }
+    }
+
+    setFormData(prevData => ({
+      ...prevData,
+      [fieldId]: formattedValue,
     }));
   };
 
@@ -205,7 +233,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   const validateForm = (): boolean => {
-    if (!template) {return false;}
+    if (!template) { return false; }
 
     let isValid = true;
     const requiredFields = template.fields.filter(field => field.required && field.id !== 'lineItems');
@@ -265,57 +293,57 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
-  const audioRecorderPlayer = React.useRef(new AudioRecorderPlayer()).current;
+  // const audioRecorderPlayer = React.useRef(new AudioRecorderPlayer()).current;
 
-  const startRecording = async () => {
-    try {
-      if (Platform.OS === 'android') {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-          {
-            title: 'Microphone Permission',
-            message: 'App needs access to your microphone to record audio.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          },
-        );
-        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert('Permission Denied', 'Cannot record without microphone permission.');
-          return;
-        }
-      }
-      setIsRecording(true);
-      await audioRecorderPlayer.startRecorder();
-    } catch (err) {
-      setIsRecording(false);
-      Alert.alert('Recording Error', 'Could not start recording.');
-    }
-  };
+  // const startRecording = async () => {
+  //   try {
+  //     if (Platform.OS === 'android') {
+  //       const granted = await PermissionsAndroid.request(
+  //         PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+  //         {
+  //           title: 'Microphone Permission',
+  //           message: 'App needs access to your microphone to record audio.',
+  //           buttonNeutral: 'Ask Me Later',
+  //           buttonNegative: 'Cancel',
+  //           buttonPositive: 'OK',
+  //         },
+  //       );
+  //       if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+  //         Alert.alert('Permission Denied', 'Cannot record without microphone permission.');
+  //         return;
+  //       }
+  //     }
+  //     setIsRecording(true);
+  //     await audioRecorderPlayer.startRecorder();
+  //   } catch (err) {
+  //     setIsRecording(false);
+  //     Alert.alert('Recording Error', 'Could not start recording.');
+  //   }
+  // };
 
-  const stopRecording = async () => {
-    setIsRecording(false);
-    try {
-      const uri = await audioRecorderPlayer.stopRecorder();
-      audioRecorderPlayer.removeRecordBackListener();
-      if (uri) {
-        try {
-          setAiLoading(true);
-          const text = await transcribeAudio(uri);
-          const response = await analyzeAndConvertText(text);
-          setAiLoading(false);
-          console.log('Transcribed Text:', response);
-          // Optionally update formData and lineItems here
-        } catch (e) {
-          setAiLoading(false);
-          Alert.alert('Upload Error', 'Could not upload audio.');
-        }
-      }
-    } catch (err) {
-      setAiLoading(false);
-      Alert.alert('Recording Error', 'Could not stop recording.');
-    }
-  };
+  // const stopRecording = async () => {
+  //   setIsRecording(false);
+  //   try {
+  //     const uri = await audioRecorderPlayer.stopRecorder();
+  //     audioRecorderPlayer.removeRecordBackListener();
+  //     if (uri) {
+  //       try {
+  //         setAiLoading(true);
+  //         const text = await transcribeAudio(uri);
+  //         const response = await analyzeAndConvertText(text);
+  //         setAiLoading(false);
+  //         console.log('Transcribed Text:', response);
+  //         // Optionally update formData and lineItems here
+  //       } catch (e) {
+  //         setAiLoading(false);
+  //         Alert.alert('Upload Error', 'Could not upload audio.');
+  //       }
+  //     }
+  //   } catch (err) {
+  //     setAiLoading(false);
+  //     Alert.alert('Recording Error', 'Could not stop recording.');
+  //   }
+  // };
 
   const renderLineItemsSection = () => {
     return (
@@ -323,7 +351,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
         <Text style={styles.sectionTitle}>Items</Text>
 
         {lineItems.map((item, index) => (
-          <View key={item.id} style={styles.lineItemCard}>
+          <View style={styles.lineItemCard}>
             <View style={styles.lineItemHeader}>
               <Text style={styles.lineItemTitle}>Item #{index + 1}</Text>
               <TouchableOpacity onPress={() => removeLineItem(index)}>
@@ -338,6 +366,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={item.description}
                 onChangeText={(text) => handleLineItemChange(index, 'description', text)}
                 placeholder="Enter description"
+                placeholderTextColor="grey"
               />
             </View>
 
@@ -348,6 +377,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
                 value={item.hsnCode}
                 onChangeText={(text) => handleLineItemChange(index, 'hsnCode', text)}
                 placeholder="Enter HSN code"
+                placeholderTextColor="grey"
+
               />
             </View>
 
@@ -360,6 +391,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
                   onChangeText={(text) => handleLineItemChange(index, 'quantity', text)}
                   placeholder="0"
                   keyboardType="numeric"
+                  placeholderTextColor="grey"
                 />
               </View>
 
@@ -370,6 +402,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
                   value={item.units}
                   onChangeText={(text) => handleLineItemChange(index, 'units', text)}
                   placeholder="pcs, kg, etc."
+                  placeholderTextColor="grey"
                 />
               </View>
             </View>
@@ -383,6 +416,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
                   onChangeText={(text) => handleLineItemChange(index, 'rate', text)}
                   placeholder="0.00"
                   keyboardType="decimal-pad"
+                  placeholderTextColor="grey"
+
                 />
               </View>
               <View style={[styles.fieldContainer, { flex: 1, marginLeft: 8 }]}>
@@ -411,10 +446,10 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
 
     return calculatedFields.map(fieldId => {
       const field = template?.fields.find(f => f.id === fieldId);
-      if (!field) {return null;}
+      if (!field) { return null; }
 
       return (
-        <View key={field.id} style={styles.fieldContainer}>
+        <View style={styles.fieldContainer}>
           <Text style={styles.label}>
             {field.label}
             {field.required && <Text style={styles.required}> *</Text>}
@@ -423,6 +458,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
             style={[styles.input, styles.disabledInput]}
             value={formData[field.id] || ''}
             editable={false}
+            placeholderTextColor="grey"
           />
         </View>
       );
@@ -445,6 +481,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
             value={value}
             onChangeText={(text) => handleInputChange(field.id, text)}
             placeholder={`Enter ${field.label}`}
+                            placeholderTextColor="grey"
+
           />
         );
       case 'number':
@@ -455,6 +493,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
             onChangeText={(text) => handleInputChange(field.id, text)}
             placeholder={`Enter ${field.label}`}
             keyboardType="numeric"
+                            placeholderTextColor="grey"
+
           />
         );
       case 'date':
@@ -462,8 +502,11 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
           <TextInput
             style={styles.input}
             value={value}
-            onChangeText={(text) => handleInputChange(field.id, text)}
+            onChangeText={(text) => handleDateInputChange(field.id, text)}
             placeholder="DD-MM-YYYY"
+            placeholderTextColor="grey"
+            keyboardType="numeric"
+            maxLength={10}
           />
         );
       default:
@@ -473,6 +516,8 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
             value={value}
             onChangeText={(text) => handleInputChange(field.id, text)}
             placeholder={`Enter ${field.label}`}
+                            placeholderTextColor="grey"
+
           />
         );
     }
@@ -501,7 +546,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
         {template.fields
           .filter(field => !field.calculateFrom && field.id !== 'lineItems')
           .map(field => (
-            <View key={field.id} style={styles.fieldContainer}>
+            <View style={styles.fieldContainer}>
               <Text style={styles.label}>
                 {field.label}
                 {field.required && <Text style={styles.required}> *</Text>}
@@ -531,7 +576,7 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
 
         {/* Voice recording button */}
-        <View style={{ marginBottom: 16 }}>
+        {/* <View style={{ marginBottom: 16 }}>
           <TouchableOpacity
             style={{ backgroundColor: isRecording ? '#e74c3c' : '#4caf50', padding: 12, borderRadius: 8, alignItems: 'center' }}
             onPress={isRecording ? stopRecording : startRecording}
@@ -540,16 +585,16 @@ const FormFillingScreen: React.FC<Props> = ({ route, navigation }) => {
               {isRecording ? 'Stop Recording' : 'Record Audio'}
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
-        {aiLoading && (
+        {/* {aiLoading && (
           <View style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', alignItems: 'center', zIndex: 100 }}>
             <View style={{ backgroundColor: 'white', padding: 24, borderRadius: 12, alignItems: 'center' }}>
               <ActivityIndicator size="large" color="#f4511e" />
               <Text style={{ marginTop: 12, color: '#333', fontSize: 16 }}>Analyzing audio with AI...</Text>
             </View>
           </View>
-        )}
+        )} */}
       </ScrollView>
     </KeyboardAvoidingView>
   );

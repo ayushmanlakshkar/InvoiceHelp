@@ -1,15 +1,31 @@
+/* eslint-disable @typescript-eslint/no-shadow */
 import { Template } from '../utils/types';
 import { templates } from '../templates/defaultTemplate';
 
 export const TemplateService = {
   // Get all available templates
   getTemplates: (): Template[] => {
-    return templates;
+    // Ensure the type property is cast to FieldType
+    return templates.map(template => ({
+      ...template,
+      fields: template.fields.map(field => ({
+        ...field,
+        type: field.type as import('../utils/types').FieldType,
+      })),
+    }));
   },
 
   // Get a specific template by ID
   getTemplateById: (id: string): Template | undefined => {
-    return templates.find(template => template.id === id);
+    const template = templates.find(template => template.id === id);
+    if (!template) {return undefined;}
+    return {
+      ...template,
+      fields: template.fields.map(field => ({
+        ...field,
+        type: field.type as import('../utils/types').FieldType,
+      })),
+    };
   },
 
   // Get the template HTML content
@@ -18,7 +34,7 @@ export const TemplateService = {
     if (template) {
       return template.html;
     }
-    
+
     // Fallback to the first template if templateId is not found
     return templates[0].html;
   },
@@ -26,7 +42,7 @@ export const TemplateService = {
   // Fill template with data using placeholders and return filled HTML
   fillTemplate: (templateHTML: string, data: Record<string, any>): string => {
     let filledTemplate = templateHTML;
-    
+
     // Replace placeholders with actual data
     Object.keys(data).forEach(key => {
       const value = data[key]?.toString() || '';
@@ -35,5 +51,5 @@ export const TemplateService = {
     });
 
     return filledTemplate;
-  }
+  },
 };

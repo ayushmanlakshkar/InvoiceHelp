@@ -2,48 +2,51 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../utils/types';
+import MyPDFsScreen from './MyPDFsScreen';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.title}>InvoiceHelp</Text>
         <Text style={styles.subtitle}>Generate professional invoices easily</Text>
       </View>
-      
+
       <View style={styles.content}>
         <Text style={styles.description}>
           Create, customize, and download professional invoices and receipts in a few simple steps.
         </Text>
-        
+
         <View style={styles.features}>
           <View style={styles.featureItem}>
             <Text style={styles.featureTitle}>Multiple Templates</Text>
             <Text style={styles.featureText}>Choose from different document templates</Text>
           </View>
-          
+
           <View style={styles.featureItem}>
             <Text style={styles.featureTitle}>Easy Forms</Text>
             <Text style={styles.featureText}>Fill in details with simple forms</Text>
           </View>
-          
+
           <View style={styles.featureItem}>
             <Text style={styles.featureTitle}>PDF Export</Text>
             <Text style={styles.featureText}>Download or share your documents</Text>
           </View>
         </View>
-      </View>
-      
+      </View> */}
+
+      <MyPDFsScreen />
+
       <View style={styles.footer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('TemplateSelection')}
         >
           <Text style={styles.buttonText}>Get Started</Text>
         </TouchableOpacity>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.navigate('MyPDFs')}
         >

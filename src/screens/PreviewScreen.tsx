@@ -86,7 +86,8 @@ const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
       await PDFService.sharePDF(pdfPath, template?.name || 'Document');
     } catch (error) {
       console.error('Error sharing PDF:', error);
-      Alert.alert('Error', `Failed to share document: ${error.message || 'Unknown error'}`);
+      const errorMessage = (error instanceof Error && error.message) ? error.message : 'Unknown error';
+      Alert.alert('Error', `Failed to share document: ${errorMessage}`);
     }
   };
 
@@ -110,7 +111,7 @@ const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Document Preview</Text>
       </View>
-      
+
       <View style={styles.previewContainer}>
         <WebView
           source={{ html: htmlContent }}
@@ -120,7 +121,7 @@ const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
           domStorageEnabled={true}
         />
       </View>
-      
+
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.editButton}
@@ -129,7 +130,7 @@ const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
         >
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.actionButton, (generating || isSaved) && styles.disabledButton]}
           onPress={promptForFileName}
@@ -143,7 +144,7 @@ const PreviewScreen: React.FC<Props> = ({ route, navigation }) => {
             </Text>
           )}
         </TouchableOpacity>
-        
+
         <TouchableOpacity
           style={[styles.actionButton, (generating || !isSaved) && styles.disabledButton]}
           onPress={handleShare}

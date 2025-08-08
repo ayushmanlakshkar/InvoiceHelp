@@ -1,105 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>Invoice</title>
   <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      padding: 40px;
+      padding: 0px 40px;
       /* Remove color and background for printing */
       color: #000;
       background: #fff;
     }
+
     .invoice-box {
       max-width: 800px;
       margin: auto;
-      border: 1px solid #000;
       border-radius: 0;
       background: #fff;
-      padding: 32px 32px 24px 32px;
-      font-size: 15px;
+      padding: 32px 100px 24px 100px;
+      font-size: 12px;
       line-height: 24px;
       box-shadow: none;
     }
+
     .invoice-title {
       text-align: center;
-      font-size: 22px;
+      font-size: 19px;
       font-weight: 700;
       /* Remove color */
       color: #000;
+      margin-top: 45px;
+
       margin-bottom: 20px;
       letter-spacing: 2px;
       text-decoration: underline;
     }
+
     h2 {
       margin: 0 0 6px 0;
       color: #000;
-      font-size: 26px;
+      font-size: 23px;
       font-weight: 600;
     }
+
     p {
       margin: 0 0 16px 0;
       color: #000;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 18px;
     }
-    table, th, td {
+
+    table,
+    th,
+    td {
       border: 1px solid #000;
     }
-    th, td {
-      padding: 10px 8px;
+
+    th,
+    td {
+      padding: 4px 14px;
     }
+
     th {
       background: #fff;
       color: #000;
       font-weight: 600;
-      font-size: 15px;
+      font-size: 12px;
       letter-spacing: 1px;
       border-bottom: 2px solid #000;
     }
+
     td {
       background: #fff;
       color: #000;
     }
+
     .text-right {
       text-align: right;
     }
+
     h3 {
       margin: 24px 0 8px 0;
-      font-size: 17px;
+      font-size: 14px;
       color: #000;
       font-weight: 600;
       letter-spacing: 1px;
     }
+
     strong {
       color: #000;
     }
+
     #grandTotal strong {
       color: #000;
-      font-size: 18px;
+      font-size: 15px;
       letter-spacing: 1px;
     }
+
+    /* Company logo */
+    .logo {
+      max-width: 120px;
+      max-height: 50px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .logo-container {
+      flex: 1;
+    }
+
+    .title-container {
+      flex: 2;
+      text-align: center;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .invoice-box {
         padding: 12px 4px;
       }
-      table, th, td {
-        font-size: 13px;
+
+      table,
+      th,
+      td {
+        font-size: 10px;
       }
-      h2, .invoice-title {
-        font-size: 18px;
+
+      h2,
+      .invoice-title {
+        font-size: 15px;
+      }
+
+      .logo {
+        max-width: 80px;
       }
     }
   </style>
 </head>
+
 <body>
   <div class="invoice-box">
-    <div class="invoice-title">TAX INVOICE</div>
+    <div class="header-container">
+      <div class="logo-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/DAIKIN_logo.svg/2560px-DAIKIN_logo.svg.png"
+          alt="Daikin Logo" class="logo">
+      </div>
+      <div class="title-container">
+        <div class="invoice-title">TAX INVOICE</div>
+      </div>
+      <div class="logo-container"></div>
+    </div>
+
     <div style="text-align:center">
       <h2>Swastik Enterprises</h2>
       <p>
@@ -112,21 +175,21 @@
       <tr>
         <td>
           <strong>Billed To:</strong><br>
-          <span id="billTo">Y R Engineers Refrigeration</span>
+          <span>{{billTo}}</span>
         </td>
         <td>
           <strong>Place of Supply:</strong><br>
-          <span id="place">MALANPUR BHIND</span>
+          <span>{{place}}</span>
         </td>
       </tr>
       <tr>
         <td>
           <strong>Invoice No:</strong><br>
-          <span id="invoiceNo">193</span>
+          <span>{{invoiceNo}}</span>
         </td>
         <td>
           <strong>Date:</strong><br>
-          <span id="invoiceDate">30-Jul-24</span>
+          <span>{{invoiceDate}}</span>
         </td>
       </tr>
     </table>
@@ -143,37 +206,30 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-            <td id="goodsName">Split AC 1.5 Ton</td>
-          <td id="hsnCode">8415</td>
-          <td id="qty">4</td>
-          <td id="units">Nos</td>
-          <td id="rate">61718.75</td>
-          <td id="amount">246875.00</td>
-        </tr>
+        {{lineItems}}
       </tbody>
     </table>
 
     <table>
       <tr>
         <td colspan="5">Total</td>
-        <td class="text-right" id="total">246875.00</td>
+        <td class="text-right">{{total}}</td>
       </tr>
       <tr>
         <td colspan="5">Taxable Value</td>
-        <td class="text-right" id="taxableValue">246875.00</td>
+        <td class="text-right">{{taxableValue}}</td>
       </tr>
       <tr>
-        <td colspan="5">ADD CGST (14%)</td>
-        <td class="text-right" id="cgst">34562.50</td>
+        <td colspan="5">ADD CGST ({{cgstRate}}%)</td>
+        <td class="text-right">{{cgst}}</td>
       </tr>
       <tr>
-        <td colspan="5">ADD SGST (14%)</td>
-        <td class="text-right" id="sgst">34562.50</td>
+        <td colspan="5">ADD SGST ({{sgstRate}}%)</td>
+        <td class="text-right">{{sgst}}</td>
       </tr>
       <tr>
         <td colspan="5"><strong>Grand Total</strong></td>
-        <td class="text-right" id="grandTotal"><strong>316000.00</strong></td>
+        <td class="text-right"><strong>{{grandTotal}}</strong></td>
       </tr>
     </table>
 
@@ -186,7 +242,7 @@
 
     <p>
       <strong>Amount in Words:</strong>
-      <span id="amountWords">RUPEES THREE LAKH SIXTEEN THOUSAND ONLY</span>
+      <span>{{amountWords}}</span>
     </p>
 
     <p style="margin-top: 40px; text-align: right;">
@@ -195,4 +251,5 @@
     </p>
   </div>
 </body>
+
 </html>
