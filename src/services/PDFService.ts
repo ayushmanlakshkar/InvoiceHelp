@@ -3,7 +3,7 @@ import Share from 'react-native-share';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const PDFService = {
+export const pdff = {
   async generatePDF(htmlContent: string, fileName: string): Promise<{ filePath: string }> {
     const options = {
       html: htmlContent,
