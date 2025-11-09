@@ -3,13 +3,13 @@ import Share from 'react-native-share';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const pdff = 
+export const PDFService = {
   async generatePDF(htmlContent: string, fileName: string): Promise<{ filePath: string }> {
     const options = {
       html: htmlContent,
       fileName,
       directory: 'Documents',
-      base64: false,
+      base64: false
     };
     const pdf = await RNHTMLtoPDF.convert(options);
     if (!pdf.filePath) throw new Error('PDF generation failed');
@@ -17,7 +17,7 @@ export const pdff =
     const pdfMeta = {
       filePath: pdf.filePath,
       fileName,
-      date: new Date().toISOString(),
+      date: new Date().toISOString()
     };
     try {
       const existing = await AsyncStorage.getItem('pdfs');
@@ -29,7 +29,6 @@ export const pdff =
     }
     return { filePath: pdf.filePath };
   },
-
   async sharePDF(filePath: string, fileName: string): Promise<void> {
     try {
       console.log(`Attempting to share PDF: ${filePath} with name ${fileName}`);
@@ -38,7 +37,7 @@ export const pdff =
         url: Platform.OS === 'android' ? `file://${filePath}` : filePath,
         type: 'application/pdf',
         failOnCancel: false,
-        filename: fileName + '.pdf',
+        filename: fileName + '.pdf'
       };
       console.log('Share options:', JSON.stringify(options));
       await Share.open(options);
@@ -52,5 +51,5 @@ export const pdff =
       }
       throw error;
     }
-  },
+  }
 };
